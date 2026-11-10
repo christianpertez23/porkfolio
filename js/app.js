@@ -47,7 +47,7 @@ function buildNav(user){
   const links=[['index.html','Home'],['about.html','About'],['skill.html','Skills'],['project.html','Projects'],['contact.html','Contact']];
   const cur=/^project\d/.test(page)?'project.html':page;
   const ini=user?user.name.trim().charAt(0).toUpperCase().replace(/</g,''):'';
-  $('#site-nav').innerHTML=`<div class="strip"><i></i>Available for collaborations · christianpertez23@gmail.com</div><header class="nav"><div class="wrap nav-bar">
+  $('#site-nav').innerHTML=`<div class="strip"><i></i>Available for collaborations · christianpertez23@gmail.com</div><header class="nav"><div class="wrap bar">
     <a class="brand" href="index.html"><img src="image/pogi.jpg" alt=""><span>Christian Pertez<small>WEB · VIDEO · MUSIC</small></span></a>
     <button class="burger" aria-label="Menu" aria-expanded="false">☰</button>
     <nav id="menu">${links.map(([h,t])=>`<a href="${h}"${h===cur?' class="on"':''}>${t}</a>`).join('')}
@@ -55,52 +55,8 @@ function buildNav(user){
     ${user?`<span class="who"><b>${ini}</b>${user.name.replace(/</g,'&lt;')}</span><button class="btn ghost" id="logout">Log out</button>`
           :`<a class="btn" href="login.html">Log in</a>`}
     ${user?'<a class="btn" href="contact.html">Hire me</a>':''}</nav></div></header>`;
-
-    
-const b = $('.burger');
-const m = $('#menu');
-
-if (b && m) {
-
-    // Toggle hamburger menu
-    b.addEventListener('click', () => {
-        const isOpen = m.classList.toggle('open');
-
-        b.setAttribute('aria-expanded', isOpen);
-        b.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
-        b.textContent = isOpen ? '✕' : '☰';
-    });
-
-    // Close after clicking a navigation link
-    m.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-            m.classList.remove('open');
-            b.setAttribute('aria-expanded', 'false');
-            b.setAttribute('aria-label', 'Open menu');
-            b.textContent = '☰';
-        });
-    });
-
-    // Close when clicking outside
-    document.addEventListener('click', (e) => {
-        if (!b.contains(e.target) && !m.contains(e.target)) {
-            m.classList.remove('open');
-            b.setAttribute('aria-expanded', 'false');
-            b.setAttribute('aria-label', 'Open menu');
-            b.textContent = '☰';
-        }
-    });
-
-    // Reset when returning to desktop
-    window.addEventListener('resize', () => {
-        if (window.innerWidth > 860) {
-            m.classList.remove('open');
-            b.setAttribute('aria-expanded', 'false');
-            b.textContent = '☰';
-        }
-    });
-}
-
+  const b=$('.burger'),m=$('#menu');
+  b.onclick=()=>b.setAttribute('aria-expanded',m.classList.toggle('open'));
   const lo=$('#logout');
   if(lo)lo.onclick=async()=>{await Auth.logout();location.href='index.html'};
 }
@@ -206,6 +162,13 @@ function features(user){
 
 /* ---------- Copy buttons + playable guitar cursor ---------- */
 function extras(){
+  document.querySelectorAll('[data-yt]').forEach(el=>{
+    const m=el.dataset.yt.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/)||el.dataset.yt.match(/^([\w-]{11})$/);
+    if(!m){el.innerHTML='<p class="ytx">Add a valid YouTube link in data-yt</p>';return}
+    const id=m[1];
+    el.innerHTML=`<button class="ytb" type="button" aria-label="Play video"><img src="${el.dataset.poster||'https://i.ytimg.com/vi/'+id+'/hqdefault.jpg'}" alt="" loading="lazy"><span></span></button>`;
+    el.firstChild.onclick=()=>{el.innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0" title="YouTube video player" allow="accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`}
+  });
   document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>{navigator.clipboard?.writeText(b.dataset.copy);toast('Copied: '+b.dataset.copy)});
   if(!matchMedia('(pointer:fine)').matches){$('#snd')?.remove();return}
   document.documentElement.classList.add('gc');
